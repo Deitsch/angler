@@ -9,3 +9,7 @@ A tool to generate typescript openapi for microservices gateways with multiple d
 ## brew (prefered)
 WIP
 ## manual
+add to path 
+```
+export PATH="$PATH:/.../angler"
+```

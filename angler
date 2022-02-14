@@ -11,7 +11,6 @@ args = parser.parse_args()
 isVerbose=args.verbose
 
 # todo: add this file to path, write readme how to and installer to do so -> brew??
-dirPath = os.path.dirname(os.path.realpath(__file__))
 swaggerGenBase="openapi-generator-cli generate -g typescript-angular "
 try:
     config = open(f'./{args.config}')
@@ -33,7 +32,8 @@ except:
     exit()
 
 try:
-    createPath = dirPath + "/" + configJson['generationFolder']
+    createPath = os.path.abspath(os.getcwd()) + "/" + configJson['generationFolder']
+    print(createPath)
 except:
     print("createPath was not defined in config")
     exit()
