@@ -12,7 +12,7 @@ brew tap deitsch/angler
 brew install angler
 ```
 ## manual
-add to path 
+Clone repo and add the repo to your path variable 
 ```
 export PATH="$PATH:/.../angler"
 ```
