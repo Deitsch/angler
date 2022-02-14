@@ -7,7 +7,10 @@ A tool to generate typescript openapi for microservices gateways with multiple d
 
 # Installation
 ## brew (prefered)
-WIP
+```
+brew tap deitsch/angler
+brew install angler
+```
 ## manual
 add to path 
 ```
