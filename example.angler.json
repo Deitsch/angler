@@ -1,9 +1,0 @@
-{
-    "generationFolder": "./openapi",
-    "swaggerBase" : "http://localhost:8002/swagger/docs",
-    "swaggerPaths": [
-      "v1/core",
-      "v1/user"
-    ],
-    "additional-properties": "disallowAdditionalPropertiesIfNotPresent=false,ngVersion=12.2.0,fileNaming=kebab-case"
-  }

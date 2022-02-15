@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 import json, os, shutil, argparse
+import anglerExtractDefinitions
+from anglerEnums import AnglerConfig, AnglerMode
+from urllib.parse import urlparse
 
 parser = argparse.ArgumentParser(description='A swagger gen for microservices')
 
@@ -7,11 +10,9 @@ parser.add_argument("-c", "--config", help="Path to the generator config", defau
 parser.add_argument("-v", "--verbose", help="Shows more details in log", action='store_true')
 
 args = parser.parse_args()
-
 isVerbose=args.verbose
-
-# todo: add this file to path, write readme how to and installer to do so -> brew??
 swaggerGenBase="openapi-generator-cli generate -g typescript-angular "
+
 try:
     config = open(f'./{args.config}')
     configJson = json.load(config)
@@ -19,30 +20,47 @@ except:
     print("No config found")
     exit()
 
+def readFromJson(json, key: AnglerConfig, defaultValue: str = None):
+    try:
+        return json[key.value]
+    except:
+        print(f"{key.value} was not defined in config")
+        if defaultValue is None:
+            exit()
+        else:
+            print(f"{key.value} using defaultValue: {defaultValue}")
+            return defaultValue
+
+### read gateway address
+# get swaggerUI path (e.g. http://localhost:8002/swagger)
+swaggerUIPath = readFromJson(configJson, AnglerConfig.GATEWAY)
+# get rid of any path (e.g. http://localhost:8002)
+gatewayHost = swaggerUIPath.strip(urlparse(swaggerUIPath).path)
+
+### read mode
+mode = readFromJson(configJson, AnglerConfig.MODE, AnglerMode.AUTO.value)
 try:
-    gatewaySwaggerAdress = configJson['swaggerBase']
+    mode = AnglerMode(configJson[AnglerConfig.MODE.value])
 except:
-    print("Swaggerbase was not defined in config")
+    allModes = ", ".join([e.value for e in AnglerMode])
+    print(f"Invalid mode set for angler.\nAvailable modes: {allModes}")
     exit()
 
-try:
-    swaggerPaths = configJson['swaggerPaths']
-except:
-    print("swaggerPaths were not defined in config")
-    exit()
+if mode == AnglerMode.MANUAL and AnglerConfig.DEFINITIONS.value not in configJson:
+    print(f"{AnglerMode.MANUAL.value} requires {AnglerConfig.DEFINITIONS.value} to be defined in the config")
 
-try:
-    createPath = os.path.abspath(os.getcwd()) + "/" + configJson['generationFolder']
-    print(createPath)
-except:
-    print("createPath was not defined in config")
-    exit()
+if mode == AnglerMode.MANUAL:
+    swaggerDefinitions = configJson['definitions']
+else:
+    swaggerDefinitions = anglerExtractDefinitions.getSwaggerDefinitions(swaggerUIPath)
 
-try:
-    additionalProperties = configJson['additional-properties']
-    swaggerGenBase += f"--additional-properties  \"{additionalProperties}\" "
-except:
-    print("No additional properties flag set")
+### generationFolder
+generationFolder = readFromJson(configJson, AnglerConfig.GENERATIONFOLDER, "./openapi")
+createPath = os.path.abspath(os.getcwd()) + "/" + generationFolder
+
+### read additional swaggergern properties
+additionalProperties = readFromJson(configJson, AnglerConfig.OPENAPICLIADD, "")
+swaggerGenBase += f"{additionalProperties} "
 
 copyFiles=[".gitignore", "configuration.ts", "api.module.ts", "encoder.ts", "index.ts", "variables.ts"]
 mergeFolders=["model", "api"]
@@ -139,19 +157,21 @@ def copyFolder(src, dest):
 
 print("generating from openapi...")
 # create services and models
-for path in swaggerPaths:
+for path in swaggerDefinitions:
     print(f"    generating {path}")
-    swaggerGen=f"{swaggerGenBase} -o ./temp/{path} -i {gatewaySwaggerAdress}/{path}"
+    swaggerGen=f"{swaggerGenBase} -o ./temp{path} -i {gatewayHost}{path}"
     if not isVerbose:
         swaggerGen+=" >/dev/null 2>&1"
+    else:
+        print(f"{swaggerGen}")
     os.system(swaggerGen) # >/dev/null 2>&1 to hide output
     for folder in mergeFolders:
-        copyFolder(f"/temp/{path}/{folder}/", f"/{folder}/")
+        copyFolder(f"/temp{path}/{folder}/", f"/{folder}/")
 
 # copying files that are the same for all generations from first generation
-firstSwaggerGenPath=swaggerPaths[0]
+firstSwaggerGenPath=swaggerDefinitions[0]
 for file in copyFiles:
-    shutil.copyfile(f"./temp/{firstSwaggerGenPath}/{file}", f"./{file}")
+    shutil.copyfile(f"./temp{firstSwaggerGenPath}/{file}", f"./{file}")
 
 print("cleaning up tmp data...")
 shutil.rmtree("./temp")
