@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json, os, shutil, argparse
 import anglerExtractDefinitions
+from anglerGen import AnglerGen
 from anglerEnums import AnglerConfig, AnglerMode
 from urllib.parse import urlparse
 
@@ -62,9 +63,6 @@ createPath = os.path.abspath(os.getcwd()) + "/" + generationFolder
 additionalProperties = readFromJson(configJson, AnglerConfig.OPENAPICLIADD, "")
 swaggerGenBase += f"{additionalProperties} "
 
-copyFiles=[".gitignore", "configuration.ts", "api.module.ts", "encoder.ts", "index.ts", "variables.ts"]
-mergeFolders=["model", "api"]
-
 def createFolder(folder):
     newFolder=f"{createPath}/{folder}"
     if not os.path.exists(newFolder):
@@ -93,87 +91,5 @@ print("\nremoving old files...")
 removeIfExist("./api/api.ts")
 removeIfExist("./model/models.ts")
 
-
-# export const APIS = [NewsService, WeatherForecastService];
-def mergeApiTs(sourceFile, destinationFile):
-    # append contents if it exists
-    if os.path.exists(destinationFile):
-        sfile = open(sourceFile, "r")
-        dFile = open(destinationFile, "r")
-        sContent = sfile.readlines()
-        dContent = dFile.readlines()
-
-        # sourcfile: disect last line (export const APIS = ...) line
-        sourceAPISLine = sContent[-1].split("=")
-        # sourcfile: creating array of api services from said line
-        sourceAPISClasses = sourceAPISLine[-1].strip().strip("[]; ")
-
-        # destfile: disect last line (export const APIS = ...) line
-        destAPISLine = dContent[-1].split("=")
-        # destfile: creating array of api services from said line
-        destAPISClasses = destAPISLine[-1].strip().strip("[]; ")
-
-        #creating merged const APIS from source and dest
-        newAPIConst = sourceAPISLine[0] + "= [" + sourceAPISClasses + ", " + destAPISClasses +  "]\n"
-        # print(newAPIConst)
-
-        # merge content of source and dest w/o const APIS
-        newContent = "".join(dContent[:-1]).join(sContent[:-1])
-        # add merged const APIS
-        newContent+=newAPIConst
-
-        # overwrite file with new content
-        finalFile = open(destinationFile, "w")
-        finalFile.write(newContent)
-    # copy file in none exists
-    else:
-        shutil.copy(sourceFile, destinationFile)
-
-def mergeModelTs(sourceFile, destinationFile):
-    # append contents if it exists
-    if os.path.exists(sourceFile):
-        sfile = open(sourceFile, "r")
-        dFile = open(destinationFile, "a")
-        dFile.write(sfile.read())
-    # copy file in none exists
-    else:
-        shutil.copy(sourceFile, destinationFile)
-
-def copyFolder(src, dest):
-    # print(f'copying from {src} to {dest}')
-    sourcePath = os.path.abspath(os.getcwd()) + src
-    destinationPath = os.path.abspath(os.getcwd()) + dest
-    for fileName in os.listdir(sourcePath):
-        sourceFile = sourcePath + fileName
-        destinationFile = destinationPath + fileName
-        
-        if fileName == "api.ts":
-            mergeApiTs(sourceFile, destinationFile)
-        elif fileName == "models.ts":
-            mergeModelTs(sourceFile, destinationFile)
-        elif os.path.isfile(sourceFile):
-            shutil.copy(sourceFile, destinationFile)
-            # print('copied', fileName)
-
-print("generating from openapi...")
-# create services and models
-for path in swaggerDefinitions:
-    print(f"    generating {path}")
-    swaggerGen=f"{swaggerGenBase} -o ./temp{path} -i {gatewayHost}{path}"
-    if not isVerbose:
-        swaggerGen+=" >/dev/null 2>&1"
-    else:
-        print(f"{swaggerGen}")
-    os.system(swaggerGen) # >/dev/null 2>&1 to hide output
-    for folder in mergeFolders:
-        copyFolder(f"/temp{path}/{folder}/", f"/{folder}/")
-
-# copying files that are the same for all generations from first generation
-firstSwaggerGenPath=swaggerDefinitions[0]
-for file in copyFiles:
-    shutil.copyfile(f"./temp{firstSwaggerGenPath}/{file}", f"./{file}")
-
-print("cleaning up tmp data...")
-shutil.rmtree("./temp")
-
-print("Done!")
+gen = AnglerGen(gatewayHost, createPath, swaggerGenBase, swaggerDefinitions, isVerbose)
+gen.generateCode()
