@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import urllib, urllib.request, re, os
 from anglerEnums import AnglerConfig
 

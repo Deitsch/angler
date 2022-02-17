@@ -15,7 +15,7 @@ isVerbose=args.verbose
 swaggerGenBase="openapi-generator-cli generate -g typescript-angular "
 
 try:
-    config = open(f'./{args.config}')
+    config = open(f'{args.config}')
     configJson = json.load(config)
 except:
     print("No config found")
