@@ -4,7 +4,7 @@ from anglerHelperFunctions import getSwaggerDefinitionsFrom, readFromJson, creat
 from anglerGen import AnglerGen
 from anglerEnums import AnglerConfig, AnglerMode
 from urllib.parse import urlparse
-currentVersion="v0.0.2"
+
 parser = argparse.ArgumentParser(description='A swagger gen for microservices')
 
 parser.add_argument("-c", "--config", help="Path to the generator config", default="angler.json")
@@ -16,6 +16,7 @@ isVerbose=args.verbose
 swaggerGenBase="openapi-generator-cli generate -g typescript-angular "
 
 if args.version:
+    currentVersion = open(f'version').read()
     print(f"Angler {currentVersion}")
     exit()
 
