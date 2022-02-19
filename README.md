@@ -27,6 +27,16 @@ To start take the [example file](./example.angler.json) and adapt it to your nee
 | mode              | supported modes are `auto` and `manual`. If unset it defaults to auto |
 | definitions       | Only needed for manual mode, set URL paths which should be considered for generation |
 
+## To be improved
+* support set versions in config
+    * by default only generate newest version of definition (e.g v1/core & v2/core existing -> use v2). 
+        * If some v1 and v2 mixed -> error?
+        * just generate newest each?
+    * config new `version` option e.g. `v1`
+* QoL change: when angler is run and does not detect a config file, ask if one should be created
+    * create example with default values
+    * create step by step with asking the user for the values
+
 ## License
 
 Angler is released under the MIT license. See LICENSE for details.
