@@ -16,7 +16,8 @@ isVerbose=args.verbose
 swaggerGenBase="openapi-generator-cli generate -g typescript-angular "
 
 if args.version:
-    currentVersion = open(f'version').read()
+    dirPath = os.path.dirname(os.path.realpath(__file__))
+    currentVersion = open(f'{dirPath}/version').read()
     print(f"Angler {currentVersion}")
     exit()
 
