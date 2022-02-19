@@ -10,7 +10,6 @@ class AnglerGen:
         self.isVerbose = isVerbose
         self.copyFiles=[".gitignore", "configuration.ts", "api.module.ts", "encoder.ts", "index.ts", "variables.ts"]
         self.mergeFolders=["model", "api"]
-        print(createPath)
     
     def generateCode(self):
         # export const APIS = [NewsService, WeatherForecastService];
@@ -53,6 +52,9 @@ class AnglerGen:
             sourceAPISLine = sContent[-1].split("=")
             # sourcfile: creating array of api services from said line
             sourceAPISClasses = sourceAPISLine[-1].strip().strip("[]; ")
+            # stop merging if there are no services to merge
+            if sourceAPISClasses == "":
+                return
 
             # destfile: disect last line (export const APIS = ...) line
             destAPISLine = dContent[-1].split("=")
