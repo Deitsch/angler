@@ -36,6 +36,7 @@ To start take the [example file](./example.angler.json) and adapt it to your nee
 * QoL change: when angler is run and does not detect a config file, ask if one should be created
     * create example with default values
     * create step by step with asking the user for the values
+* except definitions for auto mode
 
 ## License
 
