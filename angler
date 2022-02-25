@@ -51,6 +51,10 @@ if mode == AnglerMode.MANUAL:
 else:
     swaggerDefinitions = getSwaggerDefinitionsFrom(swaggerUIPath)
 
+if len(swaggerDefinitions) == 0:
+    print("No swagger definitions found")
+    exit()
+
 ### generationFolder
 generationFolder = readFromJson(configJson, AnglerConfig.GENERATIONFOLDER, "./openapi")
 createPath = os.path.abspath(os.getcwd()) + "/" + generationFolder

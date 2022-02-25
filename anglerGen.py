@@ -22,8 +22,12 @@ class AnglerGen:
                 swaggerGen+=" >/dev/null 2>&1"
             else:
                 print(f"{swaggerGen}")
-
+            
             os.system(swaggerGen) # >/dev/null 2>&1 to hide output
+            if not os.path.exists(f"./temp{path}"): 
+                print("No files could be generated from the given swagger definition. Rerun with the verbose flag to see more info.")
+                exit()
+            
             for folder in self.mergeFolders:
                 self.__copyFolder(f"/temp{path}/{folder}/", f"/{folder}/")
 
