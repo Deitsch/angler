@@ -5,7 +5,11 @@ def __extractPath(path: str):
     return path.split(":")[1].strip("\"")
 
 def getSwaggerDefinitionsFrom(url: str):
-    html = urllib.request.urlopen(url).read()
+    try:
+        html = urllib.request.urlopen(url).read()
+    except:
+        print(f"SwaggerUI not found. Is this the correct url? {url}")
+        return []
     paths = re.findall(r'"url":"[a-zA-Z\/0-9]*"', html.decode("utf-8"))
     sanitizedPaths = map(__extractPath, paths)
     return list(sanitizedPaths) 
