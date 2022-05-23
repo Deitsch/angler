@@ -8,7 +8,7 @@ To install angler you may use brew or run it manually
 ### brew
 ```
 brew tap deitsch/angler
-brew install angler
+brew install deitsch/tap/angler
 ```
 ### manual
 Clone repo and add the repo to your path variable 
