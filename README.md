@@ -1,6 +1,19 @@
 # Angler
 Angler is a tool to generate services and models from multiple openapi definitions typically seen in gateways for microservice architectures. It offers automatic detection or manual selection of definitions.
 
+**Without** Angler the generation flow looks like in the image below. The OpenAPI generator has to be run once for each definition file resulting in three output client services.
+Each of these services in independent and configured seperatly. Since these are three completly seperate generations, they do not share files resulting in duplicate files among them.
+<p align="center">
+    <img src="./images/genWithoutAngler.jpg">
+</p>
+
+**With** Angler the generation flow is altered to result in a single client service layer. Before running the OpenAPI generator the definition files are merged.
+Angler also autodetect all available definition files. The single service layer has a single a configuration and shares common files.
+<p align="center">
+    <img src="./images/genWithAngler.jpg">
+</p>
+
+
 ## Installation
 Angler is a python3 tool which uses the official openapi-generator under the hood, thus python3 ([brew](https://formulae.brew.sh/formula/python@3.9) | [python.org](https://www.python.org/downloads/)) and openapi-generator ([brew](https://formulae.brew.sh/formula/openapi-generator) | [npm](https://openapi-generator.tech/docs/installation/)) have to be installed.
 
