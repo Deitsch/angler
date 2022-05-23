@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-import json, os, shutil, argparse
-from anglerHelperFunctions import getSwaggerDefinitionsFrom, readFromJson, createFolder
-from anglerGen import AnglerGen
+import json, os, argparse
+from anglerHelperFunctions import getSwaggerDefinitionsFrom, readConfig
+from anglerGen import Angler
 from anglerEnums import AnglerConfig, AnglerMode
 from urllib.parse import urlparse
 
@@ -10,6 +10,7 @@ parser = argparse.ArgumentParser(description='A swagger gen for microservices')
 parser.add_argument("-c", "--config", help="Path to the generator config", default="angler.json")
 parser.add_argument("-b", "--verbose", help="Shows more details in log", action='store_true')
 parser.add_argument("-v", "--version", help="Shows current version", action='store_true')
+parser.add_argument("-g", "--generate", help="Generate code with the specified generator. If non is set just save merged definition", default="")
 
 args = parser.parse_args()
 isVerbose=args.verbose
@@ -30,12 +31,12 @@ except:
 
 ### read gateway address
 # get swaggerUI path (e.g. http://localhost:8002/swagger)
-swaggerUIPath = readFromJson(configJson, AnglerConfig.GATEWAY)
+swaggerUIPath = readConfig(configJson, AnglerConfig.GATEWAY)
 # get rid of any path (e.g. http://localhost:8002)
 gatewayHost = swaggerUIPath.strip(urlparse(swaggerUIPath).path)
 
 ### read mode
-mode = readFromJson(configJson, AnglerConfig.MODE, AnglerMode.AUTO.value)
+mode = readConfig(configJson, AnglerConfig.MODE, AnglerMode.AUTO.value)
 try:
     mode = AnglerMode(configJson[AnglerConfig.MODE.value])
 except:
@@ -55,28 +56,27 @@ if len(swaggerDefinitions) == 0:
     print("No swagger definitions found")
     exit()
 
+### All Data collected, run actual merge & generation
+
+gen = Angler(gatewayHost)
+mergedDefinition = gen.mergeDefinitions(swaggerDefinitions)
+print(mergedDefinition)
+
 ### generationFolder
-generationFolder = readFromJson(configJson, AnglerConfig.GENERATIONFOLDER, "./openapi")
+generationFolder = readConfig(configJson, AnglerConfig.GENERATIONFOLDER, "./openapi")
 createPath = os.path.abspath(os.getcwd()) + "/" + generationFolder
 
+if args.generate == "":
+    filePath = f"{createPath}/definition.json"
+    file = open(filePath, "w")
+    file.write(mergedDefinition)
+    file.close()
+    print(f"Created merged definition file {filePath}")
+    exit()
+
+
 ### read additional swaggergern properties
-additionalProperties = readFromJson(configJson, AnglerConfig.OPENAPICLIADD, "")
+additionalProperties = readConfig(configJson, AnglerConfig.OPENAPICLIADD, "")
 swaggerGenBase += f"{additionalProperties} "
+print(swaggerGenBase)
 
-
-print("creating folder structure...")
-createFolder(createPath, "")
-createFolder(createPath, "model")
-createFolder(createPath, "api")
-os.chdir(createPath)
-
-def removeIfExist(path):
-    if os.path.exists(path):
-        os.remove(path)
-
-print("\nremoving old files...")
-removeIfExist("./api/api.ts")
-removeIfExist("./model/models.ts")
-
-gen = AnglerGen(gatewayHost, createPath, swaggerGenBase, swaggerDefinitions, isVerbose)
-gen.generateCode()
