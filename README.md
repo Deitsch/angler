@@ -16,15 +16,15 @@ Clone repo and add the repo to your path variable
 export PATH="$PATH:/.../angler"
 ```
 ## Setup
-
 To start take the [example file](./example.angler.json) and adapt it to your needs. The parameters are explained below. When running angler it searches for a file named `angler.json` in the current directory. You may use `-c <PATH>` to specify a config json file.
 
 | Config      |  |
 | ----------- | ----------- |
-| generationFolder  | Folder the api will be generated in. Defaults to `./openapi`   |
+| generationFolder  | Folder the api will be generated in. Defaults to `./openapi` |
 | swaggerUI         | Path to swaggerUI |
 | openapi-cli-add   | additional flags added to the openapi generator. Use this for changing fileNaming to kebab-case for example. Defaults to no flags |
 | mode              | supported modes are `auto` and `manual`. If unset it defaults to auto |
+| generate          | Generate code with the specified OpenAPI generator. If unset do not generate client code and just save the merged definition file. |
 | definitions       | Only needed for manual mode, set URL paths which should be considered for generation |
 
 ## To be improved

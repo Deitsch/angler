@@ -3,6 +3,7 @@
   "swaggerUI": "http://localhost:8000/swagger/",
   "openapi-cli-add": "--additional-properties \"disallowAdditionalPropertiesIfNotPresent=false,ngVersion=12.2.0,fileNaming=kebab-case\"",
   "mode": "auto",
+  "generate": "typescript-angular",
   "definitions": [
     "/swagger/docs/v1/project",
     "/swagger/docs/v1/user"

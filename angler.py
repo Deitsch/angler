@@ -1,6 +1,6 @@
-import os, shutil, json, urllib
+import json, urllib.request, re, os
+
 from packaging import version
-from anglerOpenAPIfix import removeDeleteBody
 
 class Angler:
     def __init__(self, gatewayHost: str):
@@ -36,5 +36,17 @@ class Angler:
                 "schemas": schemas
             }
         }
-        print("Merging done!")
-        return json.dumps(newDef) 
+        return json.dumps(newDef)
+
+    def __extractPath(self, path: str):
+        return path.split(":")[1].strip("\"")
+    
+    def getSwaggerDefinitionsFrom(self, url: str) -> list[str]:
+        try:
+            html = urllib.request.urlopen(url).read()
+        except:
+            print(f"SwaggerUI not found. Is this the correct url? {url}")
+            return []
+        paths = re.findall(r'"url":"[a-zA-Z\/0-9]*"', html.decode("utf-8"))
+        sanitizedPaths = map(self.__extractPath, paths)
+        return list(sanitizedPaths) 
