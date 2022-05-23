@@ -8,13 +8,11 @@ from urllib.parse import urlparse
 parser = argparse.ArgumentParser(description='A swagger gen for microservices')
 
 parser.add_argument("-c", "--config", help="Path to the generator config", default="angler.json")
-parser.add_argument("-b", "--verbose", help="Shows more details in log", action='store_true')
 parser.add_argument("-v", "--version", help="Shows current version", action='store_true')
-parser.add_argument("-g", "--generate", help="Generate code with the specified generator. If non is set just save merged definition", default="")
+parser.add_argument("-vv", "--verbose", help="Shows more details in log", action='store_false')
 
 args = parser.parse_args()
 isVerbose=args.verbose
-swaggerGenBase="openapi-generator-cli generate -g typescript-angular "
 
 if args.version:
     dirPath = os.path.dirname(os.path.realpath(__file__))
@@ -55,28 +53,35 @@ else:
 if len(swaggerDefinitions) == 0:
     print("No swagger definitions found")
     exit()
+for swaggerDef in swaggerDefinitions:
+    print(f"Found {swaggerDef}")
 
 ### All Data collected, run actual merge & generation
 
 gen = Angler(gatewayHost)
 mergedDefinition = gen.mergeDefinitions(swaggerDefinitions)
-print(mergedDefinition)
 
 ### generationFolder
 generationFolder = readConfig(configJson, AnglerConfig.GENERATIONFOLDER, "./openapi")
 createPath = os.path.abspath(os.getcwd()) + "/" + generationFolder
 
-if args.generate == "":
-    filePath = f"{createPath}/definition.json"
-    file = open(filePath, "w")
-    file.write(mergedDefinition)
-    file.close()
-    print(f"Created merged definition file {filePath}")
-    exit()
+filePath = f"{createPath}/definition.json"
+file = open(filePath, "w")
+file.write(mergedDefinition)
+file.close()
+print(f"Created merged definition file {filePath}\n")
 
+generate = readConfig(configJson, AnglerConfig.GENERATE, "")
 
 ### read additional swaggergern properties
 additionalProperties = readConfig(configJson, AnglerConfig.OPENAPICLIADD, "")
-swaggerGenBase += f"{additionalProperties} "
-print(swaggerGenBase)
+swaggerGenCommand = f"openapi-generator-cli generate -g {generate} " + f"{additionalProperties}" + " -o " + createPath + " -i " + filePath
+
+# >/dev/null 2>&1 to hide output
+if isVerbose:
+    print(f"swagger command used: {swaggerGenCommand}")
+    swaggerGenCommand+=" >/dev/null 2>&1"
+# add docker mode here
+os.system(swaggerGenCommand)
+print("\nGenerating done!")
 

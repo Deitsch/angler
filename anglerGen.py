@@ -1,4 +1,5 @@
 import os, shutil, json, urllib
+from packaging import version
 from anglerOpenAPIfix import removeDeleteBody
 
 class Angler:
@@ -23,7 +24,9 @@ class Angler:
             schemas.update(data["components"]["schemas"])
         info["title"] = "service"
         info["description"] = "Created with Angler"
-        info["summary"] = f"This is a merged definition file of following definition files {summary}"
+
+        if version.parse(openapi) > version.parse("3.0.1"):
+            info["summary"] = f"This is a merged definition file of following definition files {summary}"
         
         newDef = {
             "openapi": openapi,
