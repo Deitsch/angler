@@ -19,9 +19,9 @@ def readConfig(json, key: AnglerConfig, defaultValue: str = None) -> str:
 
 def main():
     parser = argparse.ArgumentParser(description='A swagger gen for microservices')
-    parser.add_argument("-c", "--config", help="Path to the generator config", default="angler.json")
-    parser.add_argument("-v", "--version", help="Shows current version", action='store_true')
-    parser.add_argument("-vv", "--verbose", help="Shows more details in log", action='store_false')
+    parser.add_argument("-c", "--config", help="Define a path for the generator config.\n If unset Angler looks for \"angler.json\" in the current working directory.", default="angler.json")
+    parser.add_argument("-v", "--version", help="Show the version of the installed Angler", action='store_true')
+    parser.add_argument("-vv", "--verbose", help="Show debug info when running Angler", action='store_false')
 
     args = parser.parse_args()
     isVerbose=args.verbose
