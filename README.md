@@ -15,10 +15,10 @@ Angler also autodetect all available definition files. The single service layer 
 
 
 ## Installation
-Angler is a python3 tool which uses the official openapi-generator under the hood, thus python3 ([brew](https://formulae.brew.sh/formula/python@3.9) | [python.org](https://www.python.org/downloads/)) and openapi-generator ([brew](https://formulae.brew.sh/formula/openapi-generator) | [npm](https://openapi-generator.tech/docs/installation/)) have to be installed.
+Angler is a python3 tool which uses the official openapi-generator under the hood, thus python3 ([brew](https://formulae.brew.sh/formula/python@3.9) | [python.org](https://www.python.org/downloads/)) and openapi-generator ([brew](https://formulae.brew.sh/formula/openapi-generator) | [npm](https://openapi-generator.tech/docs/installation/)) have to be installed. To install angler you may use brew or run it manually
 
-To install angler you may use brew or run it manually
 ### brew
+Add the [custom tap](https://github.com/Deitsch/homebrew-tap) which contains the Formula needed and then install it.
 ```
 brew tap deitsch/angler
 brew install deitsch/tap/angler
