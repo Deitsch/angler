@@ -26,7 +26,7 @@ brew install deitsch/tap/angler
 ### manual
 Clone repo and add the repo to your path variable 
 ```
-export PATH="$PATH:/.../angler"
+export PATH="$PATH:/<path to angler>/main.py"
 ```
 ## Setup
 To start take the [example file](./example.angler.json) and adapt it to your needs. The parameters are explained below. When running angler it searches for a file named `angler.json` in the current directory. You may use `-c <PATH>` to specify a config json file.
