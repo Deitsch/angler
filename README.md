@@ -15,18 +15,18 @@ Angler also autodetect all available definition files. The single service layer 
 
 
 ## Installation
-Angler is a python3 tool which uses the official openapi-generator under the hood, thus python3 ([brew](https://formulae.brew.sh/formula/python@3.9) | [python.org](https://www.python.org/downloads/)) and openapi-generator ([brew](https://formulae.brew.sh/formula/openapi-generator) | [npm](https://openapi-generator.tech/docs/installation/)) have to be installed.
+Angler is a python3 tool which uses the official openapi-generator under the hood, thus python3 ([brew](https://formulae.brew.sh/formula/python@3.9) | [python.org](https://www.python.org/downloads/)) and openapi-generator ([brew](https://formulae.brew.sh/formula/openapi-generator) | [npm](https://openapi-generator.tech/docs/installation/)) have to be installed. To install angler you may use brew or run it manually
 
-To install angler you may use brew or run it manually
 ### brew
+Add the [custom tap](https://github.com/Deitsch/homebrew-tap) which contains the Formula needed and then install it.
 ```
 brew tap deitsch/angler
 brew install deitsch/tap/angler
 ```
 ### manual
-Clone repo and add the repo to your path variable 
+Clone repo and add the repo to your path variable to run it globally. Alternatively directly call it via its full path when running it.
 ```
-export PATH="$PATH:/.../angler"
+export PATH="$PATH:/<path to angler>/main.py"
 ```
 ## Setup
 To start take the [example file](./example.angler.json) and adapt it to your needs. The parameters are explained below. When running angler it searches for a file named `angler.json` in the current directory. You may use `-c <PATH>` to specify a config json file.
