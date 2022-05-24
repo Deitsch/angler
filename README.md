@@ -24,7 +24,7 @@ brew tap deitsch/angler
 brew install deitsch/tap/angler
 ```
 ### manual
-Clone repo and add the repo to your path variable 
+Clone repo and add the repo to your path variable to run it globally. Alternatively directly call it via its full path when running it.
 ```
 export PATH="$PATH:/<path to angler>/main.py"
 ```
