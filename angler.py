@@ -12,6 +12,7 @@ class Angler:
         summary = []
         paths = {}
         schemas = {}
+        securitySchemes = {}
         for definition in swaggerDefinitions:
             definitionURL = self.gatewayHost + definition
             summary.append(definition)
@@ -21,7 +22,29 @@ class Angler:
             openapi = data["openapi"]
             info = data["info"]
             paths.update(data["paths"])
-            schemas.update(data["components"]["schemas"])
+            components = data["components"]
+
+            if (components == {}):
+                print(f"No components found for {definition}, skipping ...")
+                continue
+            
+            try: 
+                compSchemas = components["schemas"]
+                schemas.update(compSchemas)
+            except:
+                print(f"No schemas found for {definition}, skipping ...")
+
+            try: 
+                compSecuritySchemes = components["securitySchemes"]
+                if (compSecuritySchemes != {}):
+                    if (securitySchemes == {}):
+                        securitySchemes.update(compSecuritySchemes)
+                    elif (securitySchemes != compSecuritySchemes):
+                        raise ValueError('The OpenAPI Definitions contain missmatching security schemas.')
+            except:
+                print(f"No securitySchemes found for {definition}, skipping ...")
+                
+
         info["title"] = "service"
         info["description"] = "Created with Angler"
 
