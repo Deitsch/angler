@@ -1,12 +1,11 @@
-import json, urllib.request, re, os
-
+import json, urllib.request, re, ssl
 from packaging import version
 
 class Angler:
     def __init__(self, gatewayHost: str):
         self.gatewayHost = gatewayHost
     
-    def mergeDefinitions(self, swaggerDefinitions: list[str]) -> str:
+    def mergeDefinitions(self, swaggerDefinitions: list[str], allowUnsafe: bool) -> str:
         openapi = ""
         info = ""
         summary = []
@@ -16,7 +15,14 @@ class Angler:
         for definition in swaggerDefinitions:
             definitionURL = self.gatewayHost + definition
             summary.append(definition)
-            f = urllib.request.urlopen(definitionURL)
+
+            if allowUnsafe:
+                ctx = ssl.create_default_context()
+                ctx.check_hostname = False
+                ctx.verify_mode = ssl.CERT_NONE
+            else: 
+                ctx = None
+            f = urllib.request.urlopen(definitionURL, context=ctx)
             data = json.load(f)
 
             openapi = data["openapi"]
@@ -64,12 +70,19 @@ class Angler:
     def __extractPath(self, path: str):
         return path.split(":")[1].strip("\"")
     
-    def getSwaggerDefinitionsFrom(self, url: str) -> list[str]:
+    def getSwaggerDefinitionsFrom(self, url: str, allowUnsafe: bool) -> list[str]:
         try:
-            html = urllib.request.urlopen(url).read()
-        except:
-            print(f"SwaggerUI not found. Is this the correct url? {url}")
-            return []
+            if allowUnsafe:
+                ctx = ssl.create_default_context()
+                ctx.check_hostname = False
+                ctx.verify_mode = ssl.CERT_NONE
+            else: 
+                ctx = None
+            html = urllib.request.urlopen(url, context=ctx).read()
+        except BaseException as err:
+            print(err)
+            print(f"SwaggerUI not found or inaccessible. \nIs this the correct url? {url}")
+            exit()
         paths = re.findall(r'"url":"[a-zA-Z\/0-9]*"', html.decode("utf-8"))
         sanitizedPaths = map(self.__extractPath, paths)
         return list(sanitizedPaths) 

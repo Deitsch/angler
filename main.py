@@ -26,6 +26,7 @@ def main():
     parser.add_argument("-v", "--version", help="Show the version of the installed Angler", action='store_true')
     parser.add_argument("-vv", "--verbose", help="Show debug info when running Angler", action='store_false')
     parser.add_argument("-d", "--docker", help="Use Docker for generation", action='store_true')
+    parser.add_argument("-u", "--unsafe", help="Ignores SSL certificate errors for https URLs", action='store_true')
 
     args = parser.parse_args()
 
@@ -65,7 +66,7 @@ def main():
     if mode == AnglerMode.MANUAL:
         swaggerDefinitions = configJson['definitions']
     else:
-        swaggerDefinitions = angler.getSwaggerDefinitionsFrom(swaggerUIPath)
+        swaggerDefinitions = angler.getSwaggerDefinitionsFrom(swaggerUIPath, args.unsafe)
 
     if len(swaggerDefinitions) == 0:
         print("No swagger definitions found")
@@ -74,7 +75,7 @@ def main():
         print(f"Found {swaggerDef}")
 
     ### All Data collected, run actual merge & generation
-    mergedDefinition = angler.mergeDefinitions(swaggerDefinitions)
+    mergedDefinition = angler.mergeDefinitions(swaggerDefinitions, args.unsafe)
     print("Merging done!")
 
     ### generationFolder
