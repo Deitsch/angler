@@ -5,6 +5,9 @@ from urllib.parse import urlparse
 from anglerOpenAPIfix import removeDeleteBody
 from angler import Angler
 from anglerEnums import AnglerConfig, AnglerMode
+from shutil import which
+import subprocess
+
 
 def readConfig(json, key: AnglerConfig, defaultValue: str = None) -> str:
     try:
@@ -22,9 +25,9 @@ def main():
     parser.add_argument("-c", "--config", help="Define a path for the generator config.\n If unset Angler looks for \"angler.json\" in the current working directory.", default="angler.json")
     parser.add_argument("-v", "--version", help="Show the version of the installed Angler", action='store_true')
     parser.add_argument("-vv", "--verbose", help="Show debug info when running Angler", action='store_false')
+    parser.add_argument("-d", "--docker", help="Use Docker for generation", action='store_true')
 
     args = parser.parse_args()
-    isVerbose=args.verbose
 
     if args.version:
         dirPath = os.path.dirname(os.path.realpath(__file__))
@@ -91,18 +94,48 @@ def main():
 
     ### read additional swaggergern properties
     additionalProperties = readConfig(configJson, AnglerConfig.OPENAPICLIADD, "")
-    swaggerGenCommand = f"openapi-generator-cli generate -g {generate} " + f"{additionalProperties}" + " -o " + createPath + " -i " + filePath
 
-    # >/dev/null 2>&1 to hide output
-    if isVerbose:
-        print(f"swagger command used: {swaggerGenCommand}")
+    if args.docker:
+        checkToolAvailableOrExit("docker")
+        swaggerGenCommand = runInDocker(generate, additionalProperties, generationFolder)
+    else:
+        checkToolAvailableOrExit("openapi-generator")
+        swaggerGenCommand = runInLocally(generate, additionalProperties, createPath, filePath, args.verbose)
+    
+    try:
+        subprocess.run(swaggerGenCommand, shell=True, check=True)
+        print("\nGenerating done!")
+    except BaseException as err:
+        print(err)
+        print("\nGenerating failed")
+
+def runInLocally(generate: str, additionalProperties: str, createPath: str, filePath: str, verbose: bool) -> str:
+    swaggerGenCommand = f"openapi-generator generate -g {generate} " + f"{additionalProperties}" + " -o " + createPath + " -i " + filePath
+    if verbose:
+        print(f"swagger command used:\n{swaggerGenCommand}")
         swaggerGenCommand+=" >/dev/null 2>&1"
-    # add docker mode here
-    os.system(swaggerGenCommand)
-    print("\nGenerating done!")
+    return swaggerGenCommand
 
-    # this is needed cause OpenAPI has a bug
-    # removeDeleteBody(f"{createPath}/api", isVerbose)
+def runInDocker(generate: str, additionalProperties: str, generationFolder: str) -> str:
+    pwd = os.path.abspath(os.getcwd())
+    swaggerGenCommand="""
+    docker run --rm \\
+        -v {pwd}/{generationFolder}:/local \\
+        openapitools/openapi-generator-cli:latest-release generate \\
+        -i /local/definition.json \\
+        -g {generate} \\
+        -o /local \\
+        {additionalProperties}
+    """.format(pwd=pwd, generationFolder=generationFolder, generate=generate, additionalProperties=additionalProperties)
+    return swaggerGenCommand
+
+def checkToolAvailableOrExit(name: str):
+    print(f"checking if {name} is installed")
+    if which(name) is None:
+        print(f"{name} is not available on your system\nexiting...")
+        exit()
+    else:
+        print(f"Found {name} installed on the system!\n")
 
 if __name__ == '__main__':
     main()
