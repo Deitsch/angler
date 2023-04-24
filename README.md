@@ -56,6 +56,7 @@ To start take the [example file](./example.angler.json) and adapt it to your nee
     * apt-get
     * macports   
 * create a docker image to angler + pipeline for auto push on dockerhub
+* detect when multiple definition files have the same type with different properties -> throw error or warn at least
 
 
 ## License
