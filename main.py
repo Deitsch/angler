@@ -2,7 +2,6 @@
 import json, os, argparse, os.path
 from os import path
 from urllib.parse import urlparse
-from anglerOpenAPIfix import removeDeleteBody
 from angler import Angler
 from anglerEnums import AnglerConfig, AnglerMode
 from shutil import which
@@ -101,7 +100,7 @@ def main():
         swaggerGenCommand = runInDocker(generate, additionalProperties, generationFolder)
     else:
         checkToolAvailableOrExit("openapi-generator")
-        swaggerGenCommand = runInLocally(generate, additionalProperties, createPath, filePath, args.verbose)
+        swaggerGenCommand = runLocally(generate, additionalProperties, createPath, filePath, args.verbose)
     
     try:
         subprocess.run(swaggerGenCommand, shell=True, check=True)
@@ -110,7 +109,7 @@ def main():
         print(err)
         print("\nGenerating failed")
 
-def runInLocally(generate: str, additionalProperties: str, createPath: str, filePath: str, verbose: bool) -> str:
+def runLocally(generate: str, additionalProperties: str, createPath: str, filePath: str, verbose: bool) -> str:
     swaggerGenCommand = f"openapi-generator generate -g {generate} " + f"{additionalProperties}" + " -o " + createPath + " -i " + filePath
     if verbose:
         print(f"swagger command used:\n{swaggerGenCommand}")

@@ -83,6 +83,6 @@ class Angler:
             print(err)
             print(f"SwaggerUI not found or inaccessible. \nIs this the correct url? {url}")
             exit()
-        paths = re.findall(r'"url":"[a-zA-Z\/0-9]*"', html.decode("utf-8"))
+        paths = re.findall(r'"url":"[a-zA-Z\/0-9_]*"', html.decode("utf-8"))
         sanitizedPaths = map(self.__extractPath, paths)
         return list(sanitizedPaths) 
